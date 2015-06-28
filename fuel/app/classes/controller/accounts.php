@@ -5,13 +5,10 @@ class Controller_Accounts extends Controller_Template
 
 	public function action_index() 
 	{
-		$this->template->screen_name = Auth::get_profile_fields('fullname', 'Unknown name');
-		//Debug::dump('hello');
-
 		$data["subnav"] = array();
+		$this->template->screen_name = Auth::get_profile_fields('fullname', 'Unknown name');
 		$this->template->title = 'Accounts';
 		$this->template->content = \View::forge('accounts/default', $data);
-
 	}
 	public function action_delete()
 	{
@@ -42,10 +39,12 @@ class Controller_Accounts extends Controller_Template
 	            }
 	            \Response::redirect('accounts');
 	        }
+	        else {
+	        	$data['incorrect_username_or_password'] = true;
+	        }
 	    }
-
 		$data["subnav"] = array('login'=> 'active' );
-		$this->template->title = 'Accounts &raquo; Login';
+		$this->template->title = 'Login';
 		$this->template->content = \View::forge('accounts/login', $data);
 	}
 
@@ -63,14 +62,17 @@ class Controller_Accounts extends Controller_Template
 	    $fieldset->add_model('Model\\Auth_User');
 	    $fieldset->add_after('fullname', 'Full Name', array(), array('required'), 'email');
 
+
 	    //Using email as username
 	    $fieldset->disable('username');
-
-	    //group_id shouldn't appear on the form
 	    $fieldset->disable('group_id');
-	    $fieldset->field('group_id')
-	    	->delete_rule('required')
-	    	->delete_rule('is_numeric');
+
+	    $fieldset->field('email')->set_attribute('type', 'email');
+
+	    $fieldset->field('password')->set_attribute('class', 'form-control');
+	    $fieldset->field('email')->set_attribute('class', 'form-control');
+	    $fieldset->field('fullname')->set_attribute('class', 'form-control');
+
 
 	    if (\Input::method() == 'POST')
 	    {
@@ -120,7 +122,8 @@ class Controller_Accounts extends Controller_Template
 	                }
 	            }
 	        }
-	        else {
+	        else 
+	        {
 	        	foreach ($fieldset->error() as $field => $error)
 			    {
 			    	array_push($data["errors"], 
@@ -138,10 +141,10 @@ class Controller_Accounts extends Controller_Template
 	    	$data['errors'] = array();
 	    }
 
-	    $fieldset->add('submit', '', array('type' => 'submit', 'value' => 'Add', 'class' => 'btn medium primary'));
+	    $fieldset->add('submit', '', array('type' => 'submit', 'value' => 'Create account', 'class' => 'btn btn-primary register-form__submit-button'));
 
 		$data["subnav"] = array('register'=> 'active' );
-		$this->template->title = 'Accounts &raquo; Register';
+		$this->template->title = 'Create account';
 		$this->template->screen_name = Auth::get_profile_fields('fullname', 'Unknown name');
 	    $this->template->content = \View::forge('accounts/register', $data)->set('form', $fieldset, false);
 	}
@@ -165,6 +168,8 @@ class Controller_Accounts extends Controller_Template
 
 	public function action_passwordrecovery($hash = null)
 	{
+		Debug::dump('Error: password recovery is not currently available. Email needs to be set up');
+		//TESTED AND WORKS. JUST NEEDS TO BE HOOKED UP TO EMAIL 
 	    if (\Input::method() == 'POST')
 	    {
 	        if ($email = \Input::post('email'))
@@ -182,27 +187,29 @@ class Controller_Accounts extends Controller_Template
 	                    ),
 	                    $user->username
 	                );
+	                $data['password_url'] = '/accounts/lostpassword/'.base64_encode($hash);
 
+	                /*
 	                // send an email out with a reset link
 	                \Package::load('email');
 	                $email = \Email::forge();
 
 	                // use a view file to generate the email message
-	                /*$email->html_body(
+	                $email->html_body(
 	                    \Theme::instance()->view('login/lostpassword')
 	                        ->set('url', \Uri::create('login/lostpassword/' . base64_encode($hash) . '/'), false)
 	                        ->set('user', $user, false)
 	                        ->render()
-	                );*/
-					$domain_name = Uri::base(false);
-					$password_resovery_hash = base64_encode($hash);
-					$email->html_body(
-						'<a href="'
-						.$domain_name
-						.'/accounts/passwordrecovery/'
-						.$password_resovery_hash
-						.'">Reset your password</a>'
-					, false);
+	                );
+					//$domain_name = Uri::base(false);
+					//$password_resovery_hash = base64_encode($hash);
+					//$email->html_body(
+					//	'<a href="'
+					//	.$domain_name
+					//	.'/accounts/passwordrecovery/'
+					//	.$password_resovery_hash
+					//	.'">Reset your password</a>'
+					//, false);
 	                $email->subject('Harpoon password recovery');
 	                $from = \Config::get('customer_service_email_address', array('name'=>'','email'=>''));
 	                $email->from($from['from-email'], $from['brand-name']);
@@ -225,17 +232,18 @@ class Controller_Accounts extends Controller_Template
 	                    //\Messages::error(__('login.error-sending-email'));
 	                    \Response::redirect_back();
 	                }
+	                */
 	            }
 	        }
-	        else
-	        {
+	        //else
+	        //{
 	            // inform the user and fall through to the form
 	            //\Messages::error(__('login.error-missing-email'));
-	        }
+	        //}
 
 	        // inform the user an email is on the way (or not ;-))
 	        //\Messages::info(__('login.recovery-email-send'));
-	        \Response::redirect_back();
+	        //\Response::redirect_back();
 	    }
 	    elseif ($hash !== null)
 	    {
@@ -268,44 +276,36 @@ class Controller_Accounts extends Controller_Template
 	        //\Messages::error(__('login.recovery-hash-invalid'));
 	        \Response::redirect_back();
 	    }
-	    else
-	    {
-	        \Response::redirect_back();
-	    }
-
-
-
-	    /*
-	    	As mentioned before, this example uses Ormauth, 
-	    	and can therefore use the provided Orm models to access the users table. 
-	    	If you use Simpleauth, use this code instead:
-
-		$user = \DB::select_array(\Config::get('simpleauth.table_columns', array('*')))
-		    ->where('email', '=', $email)
-		    ->from(\Config::get('simpleauth.table_name'))
-		    ->as_object()->execute(\Config::get('simpleauth.db_connection'))->current();
-
-	    if ($user)
-	    {
-				and likewise for the second lookup, which is on 'id'. 
-				You will also have to modify the check on the lostpassword fields, 
-				as with Simpleauth they are stored in the profile fields array. 
-				This means that you have to the profile_fields column from the query result, 
-				unserialize it if it's not empty, and get the hash and timestamp out of it.
-				You may also notice that the user-id is added to the hash. 
-				This is done to be able to support Simpleauth. 
-				With Ormauth, you could do a metadata lookup, 
-				and get the related user object from the metadata. 
-				With Simpleauth, there is no lookup possible since the data is stored in a serialized array inside the profile_fields column.
-		}
-			*/
-
-
 
 
 		$data["subnav"] = array('passwordrecovery'=> 'active' );
+
+		empty($data['password_url']) and $data['password_url'] = '';
 		$this->template->title = 'Accounts &raquo; Passwordrecovery';
 		$this->template->content = View::forge('accounts/passwordrecovery', $data);
+		$this->template->screen_name = Auth::get_profile_fields('fullname', 'Unknown name');
+
+	}
+	public function action_changepassword() {
+		if ( ! Auth::check()) {
+			\Response::redirect('accounts/login');
+		}
+
+		if (\Input::method() == 'POST') {
+			$is_password_changed = Auth::change_password(
+				Input::post('oldpassword'),
+				Input::post('newpassword')
+			);
+			if ($is_password_changed) {
+				\Response::redirect('accounts');
+			}
+		}
+
+		$data = array();
+		$data['subnav'] = array();
+		$this->template->title = 'Accounts &raquo; Change password';
+		$this->template->content = View::forge('accounts/change-password', $data);
+		$this->template->screen_name = Auth::get_profile_fields('fullname', 'Unknown name');
 	}
 
 }

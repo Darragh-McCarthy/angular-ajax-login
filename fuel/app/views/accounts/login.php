@@ -1,36 +1,35 @@
-<ul class="nav nav-pills">
-	<li class='<?php echo Arr::get($subnav, "login" ); ?>'><?php echo Html::anchor('accounts/login','Login');?></li>
-	<li class='<?php echo Arr::get($subnav, "register" ); ?>'><?php echo Html::anchor('accounts/register','Register');?></li>
-	<li class='<?php echo Arr::get($subnav, "logout" ); ?>'><?php echo Html::anchor('accounts/logout','Logout');?></li>
-	<li class='<?php echo Arr::get($subnav, "passwordrecovery" ); ?>'><?php echo Html::anchor('accounts/passwordrecovery','Passwordrecovery');?></li>
-
-</ul>
 
 
 
-<form action="/accounts/login" method="POST">
-	<div>
-		<label>
+<form class="login-form" action="/accounts/login" method="POST">
+	<?php if ( ! empty($incorrect_username_or_password)): ?>
+		<p class="alert alert-danger">Incorrect email or password.</p>
+	<?php endif; ?>
+	<div class="form-group <?php if ( ! empty($incorrect_username_or_password)) { echo 'has-error';} ?>">
+		<label class="control-label">
 			Email
-			<input type="email" name="username" />
+			<input class="form-control" type="email" name="username" />
 		</label>
 	</div>
-	<div>
-		<label>
+	<div class="form-group <?php if ( ! empty($incorrect_username_or_password)) { echo 'has-error';} ?>">
+		<label class="control-label">
 			Password
-			<input type="password" name="password" />
+			<input class="form-control" type="password" name="password" />
 		</label>
 	</div>
-	<div>
-		<label>
-			Keep me logged in
+
+	<div class="checkbox">
+		<label class="control-label">
 			<input type="checkbox" name="remember" />
+			Keep me logged in
 		</label>
 	</div>
-	<button>Login</button>
-	<!--
-	Expects input from a form that contains the input fields username (which may contain either username or email address), 
-	password and remember (which is used as a toggle, so it can be a checkbox). 
-	-->
+	<div class="login-form__actions">
+		<button type="submit" class="btn btn-primary login-form__login-button">Login</button>
+		<div class="login-form_forgot-password-link">
+			<?php echo Html::anchor('accounts/passwordrecovery','Forgot your password?');?>
+		</div>
+	</div>
 
 </form>
+

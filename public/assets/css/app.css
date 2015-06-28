@@ -1,0 +1,80 @@
+
+
+
+
+
+.main-header {
+	background: #eee;
+	padding:20px;
+}
+
+.main-header__user-account__screen-name {
+	font-weight: bold;
+}
+.main-header__user-account {}
+.main-header__user-account ul {
+	padding:0;
+	margin:0;
+}
+.main-header__user-account > * {
+	display:inline-block;
+}
+
+
+
+.login-form {
+	max-width: 500px;
+	width:100%;
+	margin:auto;
+}
+.login-form label {
+	width:100%;
+	display: block;
+}
+.login-form__actions {
+	margin-top:30px;
+}
+.login-form__login-button {}
+.login-form_forgot-password-link {
+	display: inline-block;
+	vertical-align: middle;
+	margin-left:10px;
+}
+
+
+
+.register-form {
+	max-width:500px;
+	width:100%;
+	margin:0 auto;
+}
+.register-form table,
+.register-form tbody {
+	display: block;
+	width:100%;
+}
+.register-form tr {
+	margin-top:10px;
+	display:block;
+	width:100%;
+}
+.register-form label {
+	padding:0;
+	margin:0;
+}
+.register-form td {
+	display: block;
+	margin:0;
+	padding:0;
+}
+.register-form [type="text"],
+.register-form [type="email"],
+.register-form [type="password"] {
+	width:100%;
+}
+.register-form__submit-button {
+	margin-top:20px;
+}
+
+
+
