@@ -58,6 +58,7 @@ class Controller_Accounts extends Controller_Template
 		$data["errors"] = array();
 
 	    $fieldset = \Fieldset::forge();
+	    $fieldset->form()->set_attribute('id', 'register-form');
 	    $fieldset->form()->add_csrf();
 	    $fieldset->add_model('Model\\Auth_User');
 	    $fieldset->add_after('fullname', 'Full Name', array(), array('required'), 'email');
@@ -141,7 +142,7 @@ class Controller_Accounts extends Controller_Template
 	    	$data['errors'] = array();
 	    }
 
-	    $fieldset->add('submit', '', array('type' => 'submit', 'value' => 'Create account', 'class' => 'btn btn-primary register-form__submit-button'));
+	    $fieldset->add('submit', '', array('type' => 'submit', 'id'=>'register-form__submit-button', 'value' => 'Create account', 'class' => 'btn btn-primary register-form__submit-button'));
 
 		$data["subnav"] = array('register'=> 'active' );
 		$this->template->title = 'Create account';

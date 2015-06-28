@@ -14,11 +14,14 @@
 	<div class="form-group <?php if ( ! empty($incorrect_username_or_password)) { echo 'has-error';} ?>">
 		<label class="control-label">
 			Password
-			<input class="form-control" type="password" name="password" />
+			<input class="form-control" type="password" name="password" id="login-form__password-input" />
 		</label>
 	</div>
+	<label class="login-form__show-password-checkbox-label">Show password
+		<input id="login-form__show-password-checkbox" type="checkbox" />
+	</label>
 
-	<div class="checkbox">
+	<div class="checkbox login-form__keep-me-logged-in">
 		<label class="control-label">
 			<input type="checkbox" name="remember" />
 			Keep me logged in
@@ -33,3 +36,16 @@
 
 </form>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+	var showPasswordCheckbox = document.getElementById('login-form__show-password-checkbox');
+	var passwordInputField = document.getElementById('login-form__password-input');
+
+	showPasswordCheckbox.onclick = function(){
+		var inputType = showPasswordCheckbox.checked ? 'text' : 'password';
+    	passwordInputField.setAttribute('type', inputType);
+	};
+    
+});
+</script>

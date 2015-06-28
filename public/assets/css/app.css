@@ -28,7 +28,6 @@
 	margin:auto;
 }
 .login-form label {
-	width:100%;
 	display: block;
 }
 .login-form__actions {
@@ -41,6 +40,16 @@
 	margin-left:10px;
 }
 
+label.login-form__show-password-checkbox-label {
+	float:right;
+	width: auto;
+	font-weight: normal;;
+	margin-top:-13px;
+}
+
+.login-form__keep-me-logged-in {
+	margin-top:20px;
+}
 
 
 .register-form {
