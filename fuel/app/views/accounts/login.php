@@ -29,7 +29,7 @@
 	</div>
 	<div class="login-form__actions">
 		<button type="submit" class="btn btn-primary login-form__login-button">Login</button>
-		<div class="login-form_forgot-password-link">
+		<div class="login-form__forgot-password-link">
 			<?php echo Html::anchor('accounts/passwordrecovery','Forgot your password?');?>
 		</div>
 	</div>

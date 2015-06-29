@@ -1,13 +1,7 @@
-
-
-
-
-
 .main-header {
 	background: #eee;
 	padding:20px;
 }
-
 .main-header__user-account__screen-name {
 	font-weight: bold;
 }
@@ -19,43 +13,41 @@
 .main-header__user-account > * {
 	display:inline-block;
 }
-
-
-
+.main-header__navigation {
+	margin:0;
+}
+.main-header__navigation a.active {
+	color:#999;
+}
+.register-form,
 .login-form {
 	max-width: 500px;
 	width:100%;
 	margin:auto;
+	margin-top:30px;
+	padding:15px;
 }
-.login-form label {
+.register-form h1,
+.login-form h1 {
+	margin:0 0 40px 0;
+}
+.login-form label,
+.register-form label {
 	display: block;
 }
 .login-form__actions {
 	margin-top:30px;
 }
-.login-form__login-button {}
-.login-form_forgot-password-link {
+.login-form__forgot-password-link {
 	display: inline-block;
 	vertical-align: middle;
-	margin-left:10px;
+	margin-left:5px;
 }
-
 label.login-form__show-password-checkbox-label {
 	float:right;
 	width: auto;
-	font-weight: normal;;
+	font-weight: normal;
 	margin-top:-13px;
-}
-
-.login-form__keep-me-logged-in {
-	margin-top:20px;
-}
-
-
-.register-form {
-	max-width:500px;
-	width:100%;
-	margin:0 auto;
 }
 .register-form table,
 .register-form tbody {
@@ -81,9 +73,45 @@ label.login-form__show-password-checkbox-label {
 .register-form [type="password"] {
 	width:100%;
 }
-.register-form__submit-button {
+.register-form__actions,
+.register-form__submit-button{
 	margin-top:20px;
 }
+label.register-form__show-password-checkbox-label {
+	float:right;
+	width: auto;
+	font-weight: normal;
+	margin-top:-13px;
+}
+label.register-form__show-password-checkbox-label:hover,
+label.login-form__show-password-checkbox-label:hover,
+label.login-form__keep-me-logged-in__label {
+	display: inline-block;
+}
+.register-form__show-password-checkbox-label:hover,
+.login-form__show-password-checkbox-label:hover,
+.login-form__keep-me-logged-in__label:hover {
+	color:#777;
+}
+.register-form__errors-list {
+	list-style: none;
+	padding:0;
+	width: 100%;
+}
+[ui-view="content"] {
+  position: absolute;
+  width: 100%;	
+}
+[ui-view="content"].ng-enter,
+[ui-view="content"].ng-leave {
+  -webkit-transition: all .2s ease-in-out;
+  transition: opacity .2s ease-in-out;
+}
+[ui-view="content"].ng-enter { opacity: 0; }
+[ui-view="content"].ng-enter-active { opacity: 1; }
+[ui-view="content"].ng-leave { opacity: 1; }
+[ui-view="content"].ng-leave-active {  opacity: 0; }
+
 
 
 

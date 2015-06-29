@@ -2,153 +2,130 @@
 
 class Controller_Ajaxlogin extends Controller_Rest
 {
-	public function get_testingajax()
-	{
-		return $this->response(array(
-            'foo' => Input::get('foo'),
-            'baz' => array(
-                1, 50, 219
-            ),
-            'empty' => null
+	public function get_logout() {
+	    \Auth::dont_remember_me();
+	    $is_logged_out = \Auth::logout();
+	    return $this->response(array(
+			'is_logged_out' => $is_logged_out
         ));
 	}
-/*
-	public function action_register()
+	public function post_login()
 	{
-		$data = array();
-		$data["errors"] = array();
+		//NOT WORKING, returning empty array:
+		//$params = \Input::post();
+		//NOT WORKING: empty for some reason
+		//$is_logged_in = \Auth::instance()->login(\Input::get('username'), \Input::get('password'));
 
-		if ( ! \Config::get('are_new_user_registrations_enabled', false)) {
-	        \Response::redirect_back();
-	    }
-
-	    if (\Input::method() == 'POST')
-	    {
-		    $fieldset = \Fieldset::forge();
-		    $fieldset->form()->add_csrf();
-		    $fieldset->add_model('Model\\Auth_User');
-		    $fieldset->add_after('fullname', 'Full Name', array(), array('required'), 'email');
-
-		    //Using email as username
-		    $fieldset->disable('username');
-		    $fieldset->disable('group_id');
-
-		    $fieldset->field('email')->set_attribute('type', 'email');
-
-		    $fieldset->field('password')->set_attribute('class', 'form-control');
-		    $fieldset->field('email')->set_attribute('class', 'form-control');
-		    $fieldset->field('fullname')->set_attribute('class', 'form-control');
-
-			$params = Input::post();
-			$params['group_id'] = \Config::get('application.user.default_group', 1);
-			array_key_exists('email', $params) and $params['username'] = $params['email'];
-
-	        $fieldset->validation()->run($params);
-
-	        if ( ! $fieldset->validation()->error())
-	        {
-	            try
-	            {
-	                $created = \Auth::create_user(
-	                    $fieldset->validated('email'),//$fieldset->validated('username'),
-	                    $fieldset->validated('password'),
-	                    $fieldset->validated('email'),
-	                    $fieldset->validated('group_id'),
-	                    array('fullname' => $fieldset->validated('fullname'))
-	                );
-	                if ($created)
-	                {
-	                	\Auth::instance()->login(
-	                		$fieldset->validated('username'), 
-	                		$fieldset->validated('password')
-	                	);
-	                    \Response::redirect('accounts');
-	                }
-	            }
-	            catch (\SimpleUserUpdateException $e)
-	            {
-	                // duplicate email
-	                if ($e->getCode() == 2){
-	                	array_push($data["errors"], 
-	                		array('email', 'email_already_registered', 'This email is already registered, try logging in.')
-	                	);
-	                }
-	                // duplicate username
-	                elseif ($e->getCode() == 3) {
-	                	array_push($data["errors"], 
-	                		array('username', 'username_already_registered', 'This username is already registered, try logging in.')
-	                	);
-	                }
-	                else {
-
-	                    //\Messages::error($e->getMessage());
-	                }
-	            }
-	        }
-	        else 
-	        {
-	        	foreach ($fieldset->error() as $field => $error)
-			    {
-			    	array_push($data["errors"], 
-			    		array($field, 
-			    			$error->get_message(':rule'),
-			    			$error->get_message()));
-	        	}
-	        }
-
-	        // validation failed, repopulate form from posted data
-	        $fieldset->repopulate();
-	    }
-
-	    if ( ! array_key_exists('errors', $data)) {
-	    	$data['errors'] = array();
-	    }
-
-	    $fieldset->add('submit', '', array('type' => 'submit', 'value' => 'Create account', 'class' => 'btn btn-primary register-form__submit-button'));
-
-		$data["subnav"] = array('register'=> 'active' );
-		$this->template->title = 'Create account';
-		$this->template->screen_name = Auth::get_profile_fields('fullname', 'Unknown name');
-	    $this->template->content = \View::forge('accounts/register', $data)->set('form', $fieldset, false);
-
-		$data["subnav"] = array('register'=> 'active' );
-		$this->template->title = 'Ajaxlogin &raquo; Register';
-		$this->template->content = View::forge('ajaxlogin/register', $data);
+		//not sure if this is a good enough solution but it's a possible workaround
+		$post_contents = file_get_contents( 'php://input' );
+		$json_parsed_post_contents = json_decode($post_contents);
+		$is_logged_in = \Auth::login(
+			$json_parsed_post_contents->username, 
+			$json_parsed_post_contents->password
+		);
+        if ($is_logged_in)
+        {
+            if (\Input::get('remember', false)) {
+                \Auth::remember_me();
+            } else {
+                \Auth::dont_remember_me();
+            }
+			return $this->response(array(
+				'is_logged_in' => true, 
+	            'data' => array(
+	            	'fullname' => Auth::get_profile_fields('fullname', 'Unknown name')
+	            )
+	        ));
+        }
+        else {
+        	return $this->response(array(
+        		'is_logged_in' => false
+        	));
+        }		
+	}
+	public function get_test() {
+		return $this->response(array(
+			'foo'=>'bar',
+			'baz'=>'something'
+		));
 	}
 
-	public function action_login()
+	public function post_register()
 	{
-		$this->template->screen_name = Auth::get_profile_fields('fullname', 'Unknown name');
+		$errors = array();
 
-	    if (\Auth::check()) {
-	        \Response::redirect('accounts');
-	    }
+	    $fieldset = \Fieldset::forge();
+	    $fieldset->add_model('Model\\Auth_User');
+	    $fieldset->add_after('fullname', 'Full Name', array(), array('required'), 'email');
 
-	    if (\Input::method() == 'POST')
-	    {
-	        if (\Auth::instance()->login(\Input::param('username'), \Input::param('password')))
-	        {
-	            if (\Input::param('remember', false)) {
-	                \Auth::remember_me();
-	            } else {
-	                \Auth::dont_remember_me();
-	            }
-	            \Response::redirect('accounts');
-	        }
-	        else {
-	        	$data['incorrect_username_or_password'] = true;
-	        }
-	    }
+	    //Using email as username
+	    $fieldset->disable('username');
+	    $fieldset->disable('group_id');
 
-		$data["subnav"] = array('login'=> 'active' );
-		$this->template->title = 'Login';
-		$this->template->content = \View::forge('accounts/login', $data);
+	    //handle the post data the same way as in the login handler due to problems accessing \Input::post() contents
+	    $post_contents = file_get_contents( 'php://input' );
+		$json_params = json_decode($post_contents);
 
-		$data["subnav"] = array('login'=> 'active' );
-		$this->template->title = 'Ajaxlogin &raquo; Login';
-		$this->template->content = View::forge('ajaxlogin/login', $data);
+		$params = array();
+		$params['email'] = $json_params->email;
+		$params['fullname'] = $json_params->fullname;
+		$params['password'] = $json_params->password;
+		$params['group_id'] = \Config::get('application.user.default_group', 1);
+		array_key_exists('email', $params) and $params['username'] = $params['email'];
+
+        $fieldset->validation()->run($params);
+
+        if ( ! $fieldset->validation()->error())
+        {
+            try
+            {
+                $created = \Auth::create_user(
+                    $fieldset->validated('email'),
+                    $fieldset->validated('password'),
+                    $fieldset->validated('email'),
+                    $fieldset->validated('group_id'),
+                    array('fullname' => $fieldset->validated('fullname'))
+                );
+                if ($created)
+                {
+                	\Auth::login(
+                		$fieldset->validated('username'), 
+                		$fieldset->validated('password')
+                	);
+                	return $this->response(array(
+						'is_account_creation_success' => true
+					));
+                }
+            }
+            catch (\SimpleUserUpdateException $e)
+            {
+                if ($e->getCode() == 2){
+                	array_push($errors, 'This email is already registered, try logging in.');
+                }
+                elseif ($e->getCode() == 3) {
+                	array_push($errors, 'This username is already registered, try logging in.');
+                }
+                else {
+                	array_push($errors, $e->getMessage());
+                }
+            }
+        }
+        else 
+        {
+        	foreach ($fieldset->error() as $field => $error)
+		    {
+		    	array_push($errors, 
+		    		$error->get_message()
+		    	);
+        	}
+        }
+        return $this->response(array(
+			'is_account_creation_success' => false,
+			'errors' => $errors
+		));
+
 	}
-*/
+
 
 }
 
