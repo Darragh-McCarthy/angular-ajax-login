@@ -28,7 +28,14 @@ function UserAuthService( $http,  $window, $q ) {
 	}
 
 	function logout() {
-		return $http.get('/ajaxlogin/logout').then(
+		var req = {
+			method: 'GET',
+			url: '/ajaxlogin/logout/',
+			headers: {
+				'Accept': 'application/json'
+			},
+		};
+		return $http(req).then(
 				function logoutSuccess(response) {
 					screenName = LOGGED_OUT_USER_SCREEN_NAME;
 					isLoggedIn = false;
@@ -39,12 +46,19 @@ function UserAuthService( $http,  $window, $q ) {
 			);
 	}
 	function login(email, password, remember) {
-		return $http.post('/ajaxlogin/login', {
+		var req = {
+			method: 'POST',
+			url: '/ajaxlogin/login/',
+			headers: {
+				'Accept': 'application/json'
+			},
+			data: {
 				'username': email,
 				'password': password,
 				'remember': remember
-			})
-			.then(
+			}
+		};
+		return $http(req).then(
 				function loginSuccess(response) {
 					if ( ! response.data.is_logged_in) {
 						console.log('loginSuccess handler returned not logged in')
@@ -61,12 +75,19 @@ function UserAuthService( $http,  $window, $q ) {
 			);
 	}
 	function createAccount(email, password, fullname) {
-		return $http.post('/ajaxlogin/register', {
-				'email': email,
+		var req = {
+			method: 'POST',
+			url: '/ajaxlogin/register/',
+			headers: {
+				'Accept': 'application/json'
+			},
+			data: {
+				'username': email,
 				'password': password,
 				'fullname': fullname
-			})
-			.then(
+			}
+		};
+		return $http(req).then(
 				function registerSuccess(response) {
 					if ( ! response.data.is_account_creation_success) {
 						return $q.reject(response.data.errors);
