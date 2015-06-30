@@ -1,48 +1,71 @@
 <?php
+/* KEEP CODE CLEAN */
 
 class Controller_Ajaxlogin extends Controller_Rest
 {
-	public function get_logout() {
-	    \Auth::dont_remember_me();
-	    $is_logged_out = \Auth::logout();
-	    return $this->response(array(
+	public function get_logout()
+	{
+		\Auth::dont_remember_me();
+		
+		$is_logged_out = \Auth::logout();
+		
+		return $this->response(array(
 			'is_logged_out' => $is_logged_out
-        ));
+        	));
 	}
+	
 	public function post_login()
 	{
-		//NOT WORKING, returning empty array:
-		//$params = \Input::post();
-		//NOT WORKING: empty for some reason
-		//$is_logged_in = \Auth::instance()->login(\Input::get('username'), \Input::get('password'));
-
-		//not sure if this is a good enough solution but it's a possible workaround
-		$post_contents = file_get_contents( 'php://input' );
-		$json_parsed_post_contents = json_decode($post_contents);
+		/*
+		$params = \Input::get(); // is the same as $_GET
+		$params = \Input::post(); // is the same as $_POST
+		$params = \Input::json(); // is the same as file_get_contents('php://input')
+		
+		I think the correct should be $params = \Input::post();
+		*/
+		$username = \Input::post("username");
+		$password = \Input::post("password");
+		$remember_me = \Input::post("remember", false);
+		
+		/*
+		In case even this doesn't work use this
+		$username = \Input::json("username");
+		$password = \Input::json("username");
+		$remember_me = \Input::json("remember", false);
+		*/
+		
 		$is_logged_in = \Auth::login(
-			$json_parsed_post_contents->username, 
-			$json_parsed_post_contents->password
+			$username, 
+			$password
 		);
-        if ($is_logged_in)
-        {
-            if (\Input::get('remember', false)) {
-                \Auth::remember_me();
-            } else {
-                \Auth::dont_remember_me();
-            }
+		
+		if ($is_logged_in)
+		{
+			if ($remember_me)
+			{
+				\Auth::remember_me();
+			}
+			else
+			{
+				\Auth::dont_remember_me();
+			}
+		
 			return $this->response(array(
 				'is_logged_in' => true, 
-	            'data' => array(
-	            	'fullname' => Auth::get_profile_fields('fullname', 'Unknown name')
-	            )
-	        ));
-        }
-        else {
-        	return $this->response(array(
-        		'is_logged_in' => false
-        	));
-        }		
+				'data' => array(
+		            		'fullname' => Auth::get_profile_fields('fullname', 'Unknown name')
+		            	)
+		        ));
+	        }
+	        else
+	        {
+	        	return $this->response(array(
+	        		'is_logged_in' => false
+	        	));
+	        }		
 	}
+	// If this worked apply it to the other actions
+	
 	public function get_test() {
 		return $this->response(array(
 			'foo'=>'bar',
