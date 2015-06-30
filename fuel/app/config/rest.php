@@ -27,7 +27,7 @@ return array(
 	|	Default: xml
 	|
 	*/
-	'default_format' => 'json',
+	'default_format' => 'xml',
 
 	/*
 	| XML Basenode name

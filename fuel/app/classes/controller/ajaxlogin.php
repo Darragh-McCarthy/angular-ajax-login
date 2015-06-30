@@ -15,25 +15,11 @@ class Controller_Ajaxlogin extends Controller_Rest
 	}
 	
 	public function post_login()
-	{
-		/*
-		$params = \Input::get(); // is the same as $_GET
-		$params = \Input::post(); // is the same as $_POST
-		$params = \Input::json(); // is the same as file_get_contents('php://input')
-		
-		I think the correct should be $params = \Input::post();
-		*/
-		$username = \Input::post("username");
-		$password = \Input::post("password");
-		$remember_me = \Input::post("remember", false);
-		
-		/*
-		In case even this doesn't work use this
+	{		
 		$username = \Input::json("username");
-		$password = \Input::json("username");
+		$password = \Input::json("password");
 		$remember_me = \Input::json("remember", false);
-		*/
-		
+
 		$is_logged_in = \Auth::login(
 			$username, 
 			$password
@@ -56,47 +42,31 @@ class Controller_Ajaxlogin extends Controller_Rest
 		            		'fullname' => Auth::get_profile_fields('fullname', 'Unknown name')
 		            	)
 		        ));
-	        }
-	        else
-	        {
-	        	return $this->response(array(
-	        		'is_logged_in' => false
-	        	));
-	        }		
-	}
-	// If this worked apply it to the other actions
-	
-	public function get_test() {
-		return $this->response(array(
-			'foo'=>'bar',
-			'baz'=>'something'
-		));
+	    }
+        else
+        {
+        	return $this->response(array(
+        		'is_logged_in' => false
+        	));
+        }		
 	}
 
 	public function post_register()
 	{
-		$errors = array();
-
 	    $fieldset = \Fieldset::forge();
 	    $fieldset->add_model('Model\\Auth_User');
 	    $fieldset->add_after('fullname', 'Full Name', array(), array('required'), 'email');
 
-	    //Using email as username
-	    $fieldset->disable('username');
-	    $fieldset->disable('group_id');
-
-	    //handle the post data the same way as in the login handler due to problems accessing \Input::post() contents
-	    $post_contents = file_get_contents( 'php://input' );
-		$json_params = json_decode($post_contents);
-
 		$params = array();
-		$params['email'] = $json_params->email;
-		$params['fullname'] = $json_params->fullname;
-		$params['password'] = $json_params->password;
+		$params['username'] = \Input::json("username");
+		$params['email']    = \Input::json("username");
+		$params['password'] = \Input::json("password");
+		$params['fullname'] = \Input::json("fullname");
 		$params['group_id'] = \Config::get('application.user.default_group', 1);
-		array_key_exists('email', $params) and $params['username'] = $params['email'];
 
         $fieldset->validation()->run($params);
+
+		$errors = array();
 
         if ( ! $fieldset->validation()->error())
         {

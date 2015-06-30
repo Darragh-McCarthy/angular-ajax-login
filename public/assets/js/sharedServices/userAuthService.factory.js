@@ -60,11 +60,11 @@ function UserAuthService( $http,  $window, $q ) {
 		};
 		return $http(req).then(
 				function loginSuccess(response) {
+					console.log(response);
 					if ( ! response.data.is_logged_in) {
 						console.log('loginSuccess handler returned not logged in')
 						return $q.reject();
 					}
-					console.log(response);
 					console.log('fullname', response.data.data.fullname);
 					screenName = response.data.data.fullname;
 					isLoggedIn = true;
